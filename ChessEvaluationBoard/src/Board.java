@@ -374,20 +374,84 @@ public class Board {
 		return posMoves;
 	}
 	
-	private boolean isOkKnight(int whiteTurn, int nX, int nY) {
-		if(nX >= 0 && nX < 8 && nY >= 0 && nY < 8) {
-			if(board[nX][nY] == 0 || board[nX][nY] * whiteTurn <= -1)
-				return true;
-		}
-		return false;
-	}
 
 	private boolean[][] movementPawn(Point figure){
-
+		boolean[][] posMoves = new boolean[8][8];
+		int whiteTurn = 1;
+		if(!lastWhite) {
+			whiteTurn = -1;
+		}
+		if(lastWhite) {
+			
+		}
+		
+		return posMoves;
 	}
 
 	private boolean[][] movementKing(Point figure){
+		boolean[][] posMoves = new boolean[8][8];
+		int whiteTurn = 1;
+		if(!lastWhite) {
+			whiteTurn = -1;
+		}
+		
+		int nX = selectedField.x;
+		int nY = selectedField.y+1;
+		if(nX >= 0 && nX < 8 && nY >= 0 && nY < 8) {
+			if(board[nX][nY] == 0 || board[nX][nY] * whiteTurn <= -1)
+				posMoves[nX][nY] = true;
+		}
+		
+		nX = selectedField.x+1;
+		nY = selectedField.y+1;
+		if(nX >= 0 && nX < 8 && nY >= 0 && nY < 8) {
+			if(board[nX][nY] == 0 || board[nX][nY] * whiteTurn <= -1)
+				posMoves[nX][nY] = true;
+		}
 
+		nX = selectedField.x-1;
+		nY = selectedField.y+1;
+		if(nX >= 0 && nX < 8 && nY >= 0 && nY < 8) {
+			if(board[nX][nY] == 0 || board[nX][nY] * whiteTurn <= -1)
+				posMoves[nX][nY] = true;
+		}
+
+		nX = selectedField.x+1;
+		nY = selectedField.y;
+		if(nX >= 0 && nX < 8 && nY >= 0 && nY < 8) {
+			if(board[nX][nY] == 0 || board[nX][nY] * whiteTurn <= -1)
+				posMoves[nX][nY] = true;
+		}
+
+		nX = selectedField.x-1;
+		nY = selectedField.y;
+		if(nX >= 0 && nX < 8 && nY >= 0 && nY < 8) {
+			if(board[nX][nY] == 0 || board[nX][nY] * whiteTurn <= -1)
+				posMoves[nX][nY] = true;
+		}
+		
+		nX = selectedField.x;
+		nY = selectedField.y-1;
+		if(nX >= 0 && nX < 8 && nY >= 0 && nY < 8) {
+			if(board[nX][nY] == 0 || board[nX][nY] * whiteTurn <= -1)
+				posMoves[nX][nY] = true;
+		}
+		
+		nX = selectedField.x+1;
+		nY = selectedField.y-1;
+		if(nX >= 0 && nX < 8 && nY >= 0 && nY < 8) {
+			if(board[nX][nY] == 0 || board[nX][nY] * whiteTurn <= -1)
+				posMoves[nX][nY] = true;
+		}
+
+		nX = selectedField.x-1;
+		nY = selectedField.y-1;
+		if(nX >= 0 && nX < 8 && nY >= 0 && nY < 8) {
+			if(board[nX][nY] == 0 || board[nX][nY] * whiteTurn <= -1)
+				posMoves[nX][nY] = true;
+		}
+		
+		return posMoves;
 	}
 
 	private boolean[][] movementQueen(Point figure){
