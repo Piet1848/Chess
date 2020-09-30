@@ -233,73 +233,73 @@ public class Board {
 		return false;
 	}
 
-	private boolean[][] movementRook(){ //to be tested
+	private boolean[][] movementRook(Point figure){ //to be tested
 		boolean[][] posMoves = new boolean[8][8];
 		int whiteTurn = 1;
 		if(!lastWhite) {
 			whiteTurn = -1;
 		}
 
-		int i = selectedField.x;
-		while(i < 8 && !(board[i-1][selectedField.y] != 0 || board[i][selectedField.y] * whiteTurn >= 1)) {
-			posMoves[i][selectedField.y] = true;
+		int i = figure.x;
+		while(i < 8 && !(board[i-1][figure.y] != 0 || board[i][figure.y] * whiteTurn >= 1)) {
+			posMoves[i][figure.y] = true;
 			i++;
 		}
 		
-		i = selectedField.x;
-		while(i >= 0 && !(board[i+1][selectedField.y] != 0 || board[i][selectedField.y] * whiteTurn >= 1)) {
-			posMoves[i][selectedField.y] = true;
+		i = figure.x;
+		while(i >= 0 && !(board[i+1][figure.y] != 0 || board[i][figure.y] * whiteTurn >= 1)) {
+			posMoves[i][figure.y] = true;
 			i--;
 		}
 		
-		i = selectedField.y;
-		while(i >= 0 && !(board[selectedField.x][i+1] != 0 || board[selectedField.x][i] * whiteTurn >= 1)) {
-			posMoves[selectedField.x][i] = true;
+		i = figure.y;
+		while(i >= 0 && !(board[figure.x][i+1] != 0 || board[figure.x][i] * whiteTurn >= 1)) {
+			posMoves[figure.x][i] = true;
 			i--;
 		}
 		
-		i = selectedField.y;
-		while(i < 8 && !(board[selectedField.x][i-1] != 0 || board[selectedField.x][i] * whiteTurn >= 1)) {
-			posMoves[selectedField.x][i] = true;
+		i = figure.y;
+		while(i < 8 && !(board[figure.x][i-1] != 0 || board[figure.x][i] * whiteTurn >= 1)) {
+			posMoves[figure.x][i] = true;
 			i++;
 		}
 		
 		return posMoves;
 	}
 
-	private boolean[][] movementBishop(){ // to be tested
+	private boolean[][] movementBishop(Point figure){ // to be tested
 		boolean[][] posMoves = new boolean[8][8];
 		int whiteTurn = 1;
 		if(!lastWhite) {
 			whiteTurn = -1;
 		}
 
-		int i = selectedField.x;
-		int j = selectedField.y;
+		int i = figure.x;
+		int j = figure.y;
 		while(i < 8 && !(board[i-1][j-1] != 0 || board[i][j] * whiteTurn >= 1)) {
 			posMoves[i][j] = true;
 			i++;
 			j++;
 		}
 		
-		i = selectedField.x;
-		j = selectedField.y;
+		i = figure.x;
+		j = figure.y;
 		while(i < 8 && !(board[i-1][j+1] != 0 || board[i][j] * whiteTurn >= 1)) {
 			posMoves[i][j] = true;
 			i++;
 			j--;
 		}
 		
-		i = selectedField.x;
-		j = selectedField.y;
+		i = figure.x;
+		j = figure.y;
 		while(i < 8 && !(board[i+1][j+1] != 0 || board[i][j] * whiteTurn >= 1)) {
 			posMoves[i][j] = true;
 			i--;
 			j--;
 		}
 		
-		i = selectedField.x;
-		j = selectedField.y;
+		i = figure.x;
+		j = figure.y;
 		while(i < 8 && !(board[i+1][j-1] != 0 || board[i][j] * whiteTurn >= 1)) {
 			posMoves[i][j] = true;
 			i--;
@@ -309,21 +309,90 @@ public class Board {
 		return posMoves;
 	}
 	
-	private boolean [][] movementKnight() {
+	private boolean [][] movementKnight(Point figure) {
+		boolean[][] posMoves = new boolean[8][8];
+		int whiteTurn = 1;
+		if(!lastWhite) {
+			whiteTurn = -1;
+		}
+		int nX = selectedField.x+2;
+		int nY = selectedField.y+1;
+		if(nX >= 0 && nX < 8 && nY >= 0 && nY < 8) {
+			if(board[nX][nY] == 0 || board[nX][nY] * whiteTurn <= -1)
+				posMoves[nX][nY] = true;
+		}
 		
+		nX = selectedField.x+1;
+		nY = selectedField.y+2;
+		if(nX >= 0 && nX < 8 && nY >= 0 && nY < 8) {
+			if(board[nX][nY] == 0 || board[nX][nY] * whiteTurn <= -1)
+				posMoves[nX][nY] = true;
+		}
+
+		nX = selectedField.x-1;
+		nY = selectedField.y+2;
+		if(nX >= 0 && nX < 8 && nY >= 0 && nY < 8) {
+			if(board[nX][nY] == 0 || board[nX][nY] * whiteTurn <= -1)
+				posMoves[nX][nY] = true;
+		}
+
+		nX = selectedField.x-2;
+		nY = selectedField.y+1;
+		if(nX >= 0 && nX < 8 && nY >= 0 && nY < 8) {
+			if(board[nX][nY] == 0 || board[nX][nY] * whiteTurn <= -1)
+				posMoves[nX][nY] = true;
+		}
+		
+		nX = selectedField.x+2;
+		nY = selectedField.y-1;
+		if(nX >= 0 && nX < 8 && nY >= 0 && nY < 8) {
+			if(board[nX][nY] == 0 || board[nX][nY] * whiteTurn <= -1)
+				posMoves[nX][nY] = true;
+		}
+		
+		nX = selectedField.x+1;
+		nY = selectedField.y-2;
+		if(nX >= 0 && nX < 8 && nY >= 0 && nY < 8) {
+			if(board[nX][nY] == 0 || board[nX][nY] * whiteTurn <= -1)
+				posMoves[nX][nY] = true;
+		}
+
+		nX = selectedField.x-1;
+		nY = selectedField.y-2;
+		if(nX >= 0 && nX < 8 && nY >= 0 && nY < 8) {
+			if(board[nX][nY] == 0 || board[nX][nY] * whiteTurn <= -1)
+				posMoves[nX][nY] = true;
+		}
+
+		nX = selectedField.x-2;
+		nY = selectedField.y-1;
+		if(nX >= 0 && nX < 8 && nY >= 0 && nY < 8) {
+			if(board[nX][nY] == 0 || board[nX][nY] * whiteTurn <= -1)
+				posMoves[nX][nY] = true;
+		}
+		
+		return posMoves;
+	}
+	
+	private boolean isOkKnight(int whiteTurn, int nX, int nY) {
+		if(nX >= 0 && nX < 8 && nY >= 0 && nY < 8) {
+			if(board[nX][nY] == 0 || board[nX][nY] * whiteTurn <= -1)
+				return true;
+		}
+		return false;
 	}
 
-	private boolean[][] movementPawn(){
+	private boolean[][] movementPawn(Point figure){
 
 	}
 
-	private boolean[][] movementKing(){
+	private boolean[][] movementKing(Point figure){
 
 	}
 
-	private boolean[][] movementQueen(){
-		boolean[][] rookMoves = movementRook();
-		boolean[][] bishopMoves = movementBishop();
+	private boolean[][] movementQueen(Point figure){
+		boolean[][] rookMoves = movementRook(figure);
+		boolean[][] bishopMoves = movementBishop(figure);
 		boolean[][] queenMoves = new boolean[8][8];
 		for(int i = 0; i < 8; i++) {
 			for(int j = 0; j < 8; j++) {
