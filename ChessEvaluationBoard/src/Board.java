@@ -206,7 +206,12 @@ public class Board {
 			board[selectedField.x][selectedField.y] = selectedFigure;
 			return false;
 		}
- 	}
+	}
+
+	private boolean kingIsAttaced(boolean white) {
+		//TODO
+		return false;
+	}
 
 	private boolean queen(Point nField, Point change) {
 		// TODO Auto-generated method stub
@@ -226,6 +231,108 @@ public class Board {
 	private boolean rook(Point nField, Point change) {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	private boolean[][] movementRook(){ //to be tested
+		boolean[][] posMoves = new boolean[8][8];
+		int whiteTurn = 1;
+		if(!lastWhite) {
+			whiteTurn = -1;
+		}
+
+		int i = selectedField.x;
+		while(i < 8 && !(board[i-1][selectedField.y] != 0 || board[i][selectedField.y] * whiteTurn >= 1)) {
+			posMoves[i][selectedField.y] = true;
+			i++;
+		}
+		
+		i = selectedField.x;
+		while(i >= 0 && !(board[i+1][selectedField.y] != 0 || board[i][selectedField.y] * whiteTurn >= 1)) {
+			posMoves[i][selectedField.y] = true;
+			i--;
+		}
+		
+		i = selectedField.y;
+		while(i >= 0 && !(board[selectedField.x][i+1] != 0 || board[selectedField.x][i] * whiteTurn >= 1)) {
+			posMoves[selectedField.x][i] = true;
+			i--;
+		}
+		
+		i = selectedField.y;
+		while(i < 8 && !(board[selectedField.x][i-1] != 0 || board[selectedField.x][i] * whiteTurn >= 1)) {
+			posMoves[selectedField.x][i] = true;
+			i++;
+		}
+		
+		return posMoves;
+	}
+
+	private boolean[][] movementBishop(){ // to be tested
+		boolean[][] posMoves = new boolean[8][8];
+		int whiteTurn = 1;
+		if(!lastWhite) {
+			whiteTurn = -1;
+		}
+
+		int i = selectedField.x;
+		int j = selectedField.y;
+		while(i < 8 && !(board[i-1][j-1] != 0 || board[i][j] * whiteTurn >= 1)) {
+			posMoves[i][j] = true;
+			i++;
+			j++;
+		}
+		
+		i = selectedField.x;
+		j = selectedField.y;
+		while(i < 8 && !(board[i-1][j+1] != 0 || board[i][j] * whiteTurn >= 1)) {
+			posMoves[i][j] = true;
+			i++;
+			j--;
+		}
+		
+		i = selectedField.x;
+		j = selectedField.y;
+		while(i < 8 && !(board[i+1][j+1] != 0 || board[i][j] * whiteTurn >= 1)) {
+			posMoves[i][j] = true;
+			i--;
+			j--;
+		}
+		
+		i = selectedField.x;
+		j = selectedField.y;
+		while(i < 8 && !(board[i+1][j-1] != 0 || board[i][j] * whiteTurn >= 1)) {
+			posMoves[i][j] = true;
+			i--;
+			j++;
+		}
+		
+		return posMoves;
+	}
+	
+	private boolean [][] movementKnight() {
+		
+	}
+
+	private boolean[][] movementPawn(){
+
+	}
+
+	private boolean[][] movementKing(){
+
+	}
+
+	private boolean[][] movementQueen(){
+		boolean[][] rookMoves = movementRook();
+		boolean[][] bishopMoves = movementBishop();
+		boolean[][] queenMoves = new boolean[8][8];
+		for(int i = 0; i < 8; i++) {
+			for(int j = 0; j < 8; j++) {
+				if(rookMoves[i][j] || bishopMoves[i][j]) {
+					queenMoves[i][j] = true;
+				}
+			}
+		}
+		return queenMoves;
 	}
 
 	private Point posChange(Point nField) {
