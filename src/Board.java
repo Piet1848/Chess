@@ -242,7 +242,7 @@ public class Board {
 			}
 		}
 	}
-
+/*
 	public void redoMove(Move move, Figur lFigur) {
 		if(board[move.end.x][move.end.y] == null) {	//Castle
 			if(move.end.x == 0) {
@@ -281,6 +281,7 @@ public class Board {
 		movedStack.remove(0);
 	}
 
+
 	public void redoPromotion(Move move, Figur lFigur) {
 		deleteFigur(board[move.end.x][move.end.y]);	//remove promoted figure
 		Figur pawn = new Pawn(move.start, board[move.end.x][move.end.y].isWhite(), true);
@@ -291,7 +292,7 @@ public class Board {
 			figuren.add(lFigur);
 		}
 	}
-
+*/
 	public ArrayList<Figur> getRooks(boolean isWhite) {
 		ArrayList<Figur> rooks = new ArrayList<>();
 		for(int i = 0; i < figuren.size(); i++) {
