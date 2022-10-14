@@ -6,8 +6,6 @@ import java.util.Collections;
 public class Board {
 	private Figur[][] board;
 	private ArrayList<Figur> figuren;
-
-	private boolean[][] lastChangingBoard;
 	
 	public Board() {
 		board = new Figur[8][8];
@@ -30,25 +28,6 @@ public class Board {
 			}
 		}
 	}
-
-	public void setPosition(ArrayList<Figur> position){
-		figuren = position;
-		board = new Figur[8][8];
-		for(int i = 0; i < position.size(); i++){
-			Point pos = position.get(i).getPosition();
-			board[pos.x][pos.y] = position.get(i);
-		}
-	}
-	
-	public Figur[][] getPosition(){
-		Figur[][] nBoard = new Figur[8][8];
-		for(int i = 0; i < 8; i++) {
-			for(int j = 0; j < 8; j++) {
-				nBoard[i][j] = board[i][j];
-			}
-		}
-		return nBoard;
-	}
 	
 	public Figur getFigur(Point p) {
 		if(p.getX() >= 8 || p.getX() <= -1 || p.getY() >= 8 || p.getY() <= -1) {
@@ -61,19 +40,18 @@ public class Board {
 		resetProtection(isWhite);
 		boolean[][] changingBoard = new boolean[8][8];
 		ArrayList<Move> moves = new ArrayList<>();
-		for(int i = 0; i < figuren.size(); i++) {
-			if(figuren.get(i).isWhite() == isWhite) {
-				ArrayList<Prio> nMoves = figuren.get(i).possibleMoves(this);
-				Point p = figuren.get(i).getPosition();
-				if(nMoves == null){
+		for (Figur figur : figuren) {
+			if (figur.isWhite() == isWhite) {
+				ArrayList<Move> nMoves = figur.possibleMoves(this);
+				Point p = figur.getPosition();
+				if (nMoves == null) {
 					System.out.println("nMoves is null");
-					System.out.println("figur: " +figuren.get(i).getName() + "_" + figuren.get(i).getPosition() + "_" + figuren.get(i).isWhite());
+					System.out.println("figur: " + figur.getName() + "_" + figur.getPosition() + "_" + figur.isWhite());
 				}
 				updateBoard(changingBoard, nMoves);
-				moves.addAll(toArrayMove(nMoves, p));
+				moves.addAll(nMoves);
 			}
 		}
-		lastChangingBoard = changingBoard;
 		if(checkCheck)
 			checkCheck(moves, isWhite);
 		return moves;
@@ -81,69 +59,31 @@ public class Board {
 
 	private void checkCheck(ArrayList<Move> moves, boolean isWhite){
 		for (int i = 0; i < moves.size(); i++) {
-			ArrayList<Figur> oldPosition = getFiguren();
-			ArrayList<Figur> position = new ArrayList<>();
-			for (int j = 0; j < oldPosition.size(); j++) {
-				position.add(oldPosition.get(j).clone());
-			}
 			move(moves.get(i));
 			if(inCheck(isWhite)){
+				undoMove(moves.get(i));
 				moves.remove(i--);
+			}else {
+				undoMove(moves.get(i));
 			}
-			setPosition(position);
 		}
 	}
 	
 	private void resetProtection(boolean isWhite) {
-		for(int i = 0; i < figuren.size(); i++) {
-			figuren.get(i).resetProtection(isWhite);
+		for (Figur figur : figuren) {
+			figur.resetProtection(isWhite);
 		}
 	}
 	
-	private void updateBoard(boolean[][] changingBoard, ArrayList<Prio> nMoves) {
-		for(int i = 0; i < nMoves.size(); i++) {
-			if(nMoves.get(i).point.x >= 8 || nMoves.get(i).point.x < 0  || nMoves.get(i).point.y < 0 || nMoves.get(i).point.y >= 8){
-				System.out.println("Out of bounce: x=" + nMoves.get(i).point.x);
-				System.out.println("Out of bounce: y=" + nMoves.get(i).point.y);
-				System.out.println("i=" + i);
-				System.out.println("Prio="+nMoves.get(i).prio);
+	private void updateBoard(boolean[][] changingBoard, ArrayList<Move> nMoves) {
+		for(Move move : nMoves) {
+			if(move.end.x >= 8 || move.end.x < 0  || move.end.y < 0 || move.end.y >= 8){
+				System.out.println("Out of bounce: x=" + move.end.x);
+				System.out.println("Out of bounce: y=" + move.end.y);
+				System.out.println("StartFigur: " + move.startFigur.getName().name());
 			}
-			changingBoard[nMoves.get(i).point.x][nMoves.get(i).point.y] = true;
+			changingBoard[move.end.x][move.end.y] = true;
 		}
-	}
-	
-	public ArrayList<Move> getFastSortedMoves(boolean isWhite){
-		return oldSort(getAllMoves(isWhite, true), isWhite);
-	}
-	
-	private ArrayList<Move> oldSort(ArrayList<Move> moves, boolean isWhite){
-		Move tempMove;
-		for(int i = 1; i < moves.size(); i++) {
-			tempMove = moves.get(i);
-			double vTempMove = tempMove.prio;
-			int j = i;
-			while(j > 0 && moves.get(j-1).prio < vTempMove) {
-				moves.set(j, moves.get(j-1));
-				j--;
-			}
-			moves.set(j, tempMove);
-		}
-		if(!isWhite)
-			Collections.reverse(moves);
-		return moves;
-	}
-	
-	private ArrayList<Move> toArrayMove(ArrayList<Prio> movesPrio, Point p) {
-		ArrayList<Move> n = new ArrayList<>();
-		for(int i = 0; i < movesPrio.size(); i++) {
-			if(movesPrio.get(i).point.getX() >= 8 || movesPrio.get(i).point.getX() <= -1 || movesPrio.get(i).point.getY() >= 8 || movesPrio.get(i).point.getY() <= -1) {
-				System.out.print("Error toArrayMove: ");
-				System.out.println(board[(int) p.getX()][(int) p.getY()].getName() + " at: x" + p.getX() + ", y" + p.getY());
-				printBoard();
-			}
-			n.add(new Move(p, movesPrio.get(i).point, movesPrio.get(i).prio, movesPrio.get(i).promotion));
-		}
-		return n;
 	}
 	
 	private void initBoard() {
@@ -176,10 +116,10 @@ public class Board {
 	
 	public boolean hasBothKings() {
 		int countKing = 0;
-		for(int i = 0; i < figuren.size(); i++) {
-			if(figuren.get(i).getName().equals("king")) {
+		for (Figur figur : figuren) {
+			if (figur.getName() == FigurName.KING) {
 				countKing++;
-				if(countKing == 2) {
+				if (countKing == 2) {
 					return true;
 				}
 			}
@@ -188,9 +128,14 @@ public class Board {
 	}
 	
 	public void move(Move move) {
+
+		if(board[move.start.x][move.start.y] == null){
+			System.out.println("" + move.start + "End: " + move.end);
+		}
+
 		Figur lFigur = board[move.end.x][move.end.y];
 		//Castle
-		if (lFigur != null && lFigur.getName().equals("rook") && board[move.start.x][move.start.y].getName().equals("king") && lFigur.isWhite() == board[move.start.x][move.start.y].isWhite()) {
+		if (move.castle()) {
 			if (!lFigur.getMoved() && !board[move.start.x][move.start.y].getMoved()) {
 				if (move.end.x == 0) {
 					board[2][move.start.y] = lFigur;
@@ -207,45 +152,47 @@ public class Board {
 				board[move.end.x][move.start.y] = null;
 				board[move.start.x][move.start.y] = null;
 			}
-		} else if (move.promotion) {
-			if (move.prio == 3.113) {    //Pawn promotion (Queen)
-				Figur pawn = board[move.start.x][move.start.y];
-				Figur queen = new Queen(move.end, pawn.isWhite());
-				board[move.end.x][move.end.y] = queen;
-				board[move.start.x][move.start.y] = null;
-				deleteFigur(lFigur);
-				deleteFigur(pawn);
-				figuren.add(queen);
-			} else if (move.prio == 3.112) {    //Rook
-				Figur pawn = board[move.start.x][move.start.y];
-				Figur rook = new Rook(move.end, pawn.isWhite());
-				board[move.end.x][move.end.y] = rook;
-				board[move.start.x][move.start.y] = null;
-				deleteFigur(lFigur);
-				deleteFigur(pawn);
-				figuren.add(rook);
-			} else if (move.prio == 3.111) {    //Knight
-				Figur pawn = board[move.start.x][move.start.y];
-				Figur knight = new Knight(move.end, pawn.isWhite());
-				board[move.end.x][move.end.y] = knight;
-				board[move.start.x][move.start.y] = null;
-				deleteFigur(lFigur);
-				deleteFigur(pawn);
-				figuren.add(knight);
-			} else if (move.prio == 3.110) {    //Bishop
-				Figur pawn = board[move.start.x][move.start.y];
-				Figur bishop = new Bishop(move.end, pawn.isWhite());
-				board[move.end.x][move.end.y] = bishop;
-				board[move.start.x][move.start.y] = null;
-				deleteFigur(lFigur);
-				deleteFigur(pawn);
-				figuren.add(bishop);
-			}
 		} else {    //normal
-			board[move.start.x][move.start.y].moveTo(move.end);
-			board[move.end.x][move.end.y] = board[move.start.x][move.start.y];
+			if(move.isPromotion()){
+				board[move.end.x][move.end.y] = getNewFigur(move.promotion, move.end, move.startFigur.isWhite());
+				figuren.add(board[move.end.x][move.end.y]);
+				deleteFigur(move.startFigur);
+			}else {
+				board[move.start.x][move.start.y].moveTo(move.end);
+				board[move.end.x][move.end.y] = board[move.start.x][move.start.y];
+			}
 			board[move.start.x][move.start.y] = null;
-			deleteFigur(lFigur);//TODO
+
+			if(move.isCapture())
+				deleteFigur(lFigur);
+		}
+	}
+
+	public void undoMove(Move move){
+		if(move.castle()){
+			board[move.startFigur.getPosition().x][move.startFigur.getPosition().y] = null;
+			board[move.endFigur.getPosition().x][move.endFigur.getPosition().y] = null;
+			board[move.start.x][move.start.y] = move.startFigur;
+			board[move.end.x][move.end.y] = move.endFigur;
+			move.startFigur.setMoved(false);
+			move.endFigur.setMoved(false);
+			move.startFigur.moveTo(move.start);
+			move.endFigur.moveTo(move.end);
+		}else {
+			move.startFigur.moveTo(move.start);
+			move.startFigur.setMoved(move.alreadyMoved);
+			board[move.start.x][move.start.y] = move.startFigur;
+
+			if(move.isPromotion()){
+				deleteFigur(board[move.end.x][move.end.y]);
+				figuren.add(move.startFigur);
+			}
+			if(move.isCapture()){
+				figuren.add(move.endFigur);
+				board[move.end.x][move.end.y] = move.endFigur;
+			}else {
+				board[move.end.x][move.end.y] = null;
+			}
 		}
 	}
 	
@@ -257,62 +204,37 @@ public class Board {
 			}
 		}
 	}
-/*
-	public void redoMove(Move move, Figur lFigur) {
-		if(board[move.end.x][move.end.y] == null) {	//Castle
-			if(move.end.x == 0) {
-				board[0][move.start.y] = board[2][move.start.y];
-				board[0][move.start.y].moveTo(new Point(0,move.end.y));
-				board[0][move.start.y].setMoved(false);
-				board[2][move.start.y] = null;
-				board[3][move.start.y] = board[1][move.start.y];
-				if(move.start.x != 3) {
-					System.out.println("Castle Error");
-				}
-				board[3][move.start.y].moveTo(new Point(3, move.start.y));
-				board[1][move.start.y] = null;
 
-			}else {
-				board[7][move.start.y] = board[4][move.start.y];
-				board[4][move.start.y] = null;
-				board[7][move.start.y].moveTo(new Point(7,move.end.y));
-				board[7][move.start.y].setMoved(false);
-				board[3][move.start.y] = board[5][move.start.y];
-				if(move.start.x != 3) {
-					System.out.println("Castle Error");
-				}
-				board[5][move.start.y] = null;
-				board[3][move.start.y].moveTo(new Point(3, move.start.y));
+	private Figur getNewFigur(FigurName name, Point pos, boolean isWhite){
+		switch (name){
+			case KING -> {
+				return new King(pos, isWhite);
 			}
-		}else {
-			board[move.start.x][move.start.y] = board[move.end.x][move.end.y];
-			board[move.start.x][move.start.y].moveTo(move.start);
-			board[move.end.x][move.end.y] = lFigur;
-			if(lFigur != null) {
-				figuren.add(lFigur);
+			case PAWN -> {
+				return new Pawn(pos, isWhite);
+			}
+			case ROOK -> {
+				return new Rook(pos, isWhite);
+			}
+			case QUEEN -> {
+				return new Queen(pos, isWhite);
+			}
+			case BISHOP -> {
+				return new Bishop(pos, isWhite);
+			}
+			case KNIGHT -> {
+				return new Knight(pos, isWhite);
+			}
+			default -> {	//should not occur
+				return null;
 			}
 		}
-		board[move.start.x][move.start.y].setMoved(movedStack.get(0));
-		movedStack.remove(0);
 	}
 
-
-	public void redoPromotion(Move move, Figur lFigur) {
-		deleteFigur(board[move.end.x][move.end.y]);	//remove promoted figure
-		Figur pawn = new Pawn(move.start, board[move.end.x][move.end.y].isWhite(), true);
-		board[move.start.x][move.start.y] = pawn;
-		board[move.end.x][move.end.y] = lFigur;
-		figuren.add(pawn);
-		if(lFigur != null) {
-			figuren.add(lFigur);
-		}
-	}
-*/
 	public ArrayList<Figur> getNotMovedRooks(boolean isWhite) {
 		ArrayList<Figur> rooks = new ArrayList<>();
-		for(int i = 0; i < figuren.size(); i++) {
-			Figur f = figuren.get(i);
-			if(f.getName().equals("rook") && figuren.get(i).isWhite() == isWhite && figuren.get(i).getMoved() == false) {
+		for (Figur f : figuren) {
+			if (f.getName() == FigurName.ROOK && f.isWhite() == isWhite && !f.getMoved()) {
 				rooks.add(f);
 			}
 		}
@@ -320,9 +242,9 @@ public class Board {
 	}
 	
 	public boolean winner() {
-		for(int i = 0; i < figuren.size(); i++) {
-			if(figuren.get(i).getName() == "king") {
-				return figuren.get(i).isWhite();
+		for (Figur figur : figuren) {
+			if (figur.getName() == FigurName.KING) {
+				return figur.isWhite();
 			}
 		}
 		System.out.println("Error at Board.winner()");
@@ -336,60 +258,25 @@ public class Board {
 	}
 
 	private Figur findKing(boolean isWhite){
-		for (int i = 0; i < figuren.size(); i++) {
-			if(figuren.get(i).isWhite() == isWhite && figuren.get(i).getName().equals("king")){
-				return figuren.get(i);
+		for (Figur figur : figuren) {
+			if (figur.isWhite() == isWhite && figur.getName() == FigurName.KING) {
+				return figur;
 			}
 		}
 		System.out.println("ERROR findKing: No King found!");
 		return null;
 	}
 	
-	private void printBoard() {	//Just for testing
-		System.out.println();
+	public void printBoard() {	//Just for testing
 		for(int i = 0; i < 8; i++) {
 			for(int j = 0; j < 8; j++) {
 				Figur f = board[i][j];
 				if(f == null) {
 					System.out.print(" ");
 				}else if(f.isWhite()) {
-					if(f.getName().equals("king")) {
-						System.out.print("K");
-					}
-					if(f.getName().equals("rook")) {
-						System.out.print("R");
-					}
-					if(f.getName().equals("queen")) {
-						System.out.print("Q");
-					}
-					if(f.getName().equals("bishop")) {
-						System.out.print("B");
-					}
-					if(f.getName().equals("knight")) {
-						System.out.print("S");
-					}
-					if(f.getName().equals("pawn")) {
-						System.out.print("P");
-					}
+					System.out.print(f.getName().name().toUpperCase());
 				}else {
-					if(f.getName().equals("king")) {
-						System.out.print("k");
-					}
-					if(f.getName().equals("rook")) {
-						System.out.print("r");
-					}
-					if(f.getName().equals("queen")) {
-						System.out.print("q");
-					}
-					if(f.getName().equals("bishop")) {
-						System.out.print("b");
-					}
-					if(f.getName().equals("knight")) {
-						System.out.print("s");
-					}
-					if(f.getName().equals("pawn")) {
-						System.out.print("p");
-					}
+					System.out.print(f.getName().name().toLowerCase());
 				}
 				System.out.print("|");
 			}
@@ -399,5 +286,9 @@ public class Board {
 
 	public ArrayList<Figur> getFiguren(){
 		return figuren;
+	}
+
+	public Figur[][] getBoard(){
+		return board;
 	}
 }

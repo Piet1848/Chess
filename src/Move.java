@@ -3,26 +3,39 @@ import java.awt.Point;
 public class Move {
 	public final Point start;
 	public final Point end;
-	public final double prio;
-	public final boolean promotion;
-	
-	public Move(Point nStart, Point nEnd, boolean nPromotion) {
-		if(nStart.x>=8 || nStart.x<=-1||nEnd.x>=8||nEnd.x<=-1||nEnd.y>=8||nEnd.y<=-1) {	//TODO remove
-			System.out.print("Error in Move");
-		}
-		start = nStart;
-		end = nEnd;
-		prio = 0.;
-		promotion = nPromotion;
+	public final FigurName promotion;	//if there is no Promotion the promotion is the same as the startFigur
+	public final Figur startFigur;
+	public final Figur endFigur;
+
+	public final boolean alreadyMoved;
+
+	public Move(Point start, Point end, FigurName promotion, Figur startFigur, Figur endFigur) {	//when already moved doesn't matter
+		this.start = start;
+		this.end = end;
+		this.promotion = promotion;
+		this.startFigur = startFigur;
+		this.endFigur = endFigur;
+		this.alreadyMoved = false;
 	}
-	
-	public Move(Point nStart, Point nEnd, double nPrio, boolean nPromotion) {
-		if(nStart.x>=8 || nStart.x<=-1||nEnd.x>=8||nEnd.x<=-1||nEnd.y>=8||nEnd.y<=-1) {
-		System.out.print("Error in Move");
-		}
-		start = nStart;
-		end = nEnd;
-		prio = nPrio;
-		promotion = nPromotion;
+
+	public Move(Point start, Point end, FigurName promotion, Figur startFigur, Figur endFigur, boolean alreadyMoved) {	//For Kings and Rooks
+		this.start = start;
+		this.end = end;
+		this.promotion = promotion;
+		this.startFigur = startFigur;
+		this.endFigur = endFigur;
+		this.alreadyMoved = alreadyMoved;
+	}
+
+	public boolean isPromotion(){
+		return promotion != startFigur.getName();
+	}
+
+	public boolean isCapture(){
+		return endFigur != null;
+	}
+
+	public boolean castle(){
+		return endFigur != null && startFigur.isWhite() == endFigur.isWhite();
 	}
 }

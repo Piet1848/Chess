@@ -2,7 +2,7 @@ import java.awt.Point;
 import java.util.ArrayList;
 
 public class Pawn implements Figur{
-	private final String name = "pawn";
+	private final FigurName name = FigurName.PAWN;
 	private final boolean isWhite;
 	private Point position;
 	private boolean moved = false;
@@ -23,50 +23,35 @@ public class Pawn implements Figur{
 		}
 	}
 
-	public Pawn(Point nPos, boolean nWhite, boolean nMoved, double nBonus, int nProtection) {
-		position = nPos;
-		isWhite = nWhite;
-		moved = true;
-		if(!nWhite) {
-			value = -1;
-			direktion = new Point(0, -1);
-		}else{
-			value = 1;
-			direktion = new Point(0, 1);
-		}
-		moved = nMoved;
-		bonus = nBonus;
-		protection = nProtection;
-	}
-
 	@Override
 	public Point getPosition() {
 		return position;
 	}
 
 	@Override
-	public ArrayList<Prio> possibleMoves(Board b) {	//TODO en passante missing
+	public ArrayList<Move> possibleMoves(Board b) {	//TODO en passante missing
 		bonus = 0;
-		ArrayList<Prio> moves = new ArrayList<>();
-		Point positionToCheck = addPoints(position, direktion);
-		Figur f = b.getFigur(positionToCheck);
-		
+		ArrayList<Move> moves = new ArrayList<>();
+
 		if(position.y >= 7 || position.y <= 0) {
 			System.out.println("Error Pawn at back rank");
 			return moves;
 		}
+
+		Point positionToCheck = addPoints(position, direktion);
+		Figur f = b.getFigur(positionToCheck);
 		if(f == null) {
 			if(positionToCheck.getY() == 7 || positionToCheck.getY() == 0) {
-				moves.add(new Prio(positionToCheck, 3.113, true));	//make Queen
-				moves.add(new Prio(positionToCheck, 3.112, true));	//Rook
-				moves.add(new Prio(positionToCheck, 3.111, true));	//Knight
-				moves.add(new Prio(positionToCheck, 3.110, true));	//Bishop
+				moves.add(new Move(position, positionToCheck, FigurName.QUEEN,this, null, moved));	//make Queen
+				moves.add(new Move(position, positionToCheck, FigurName.ROOK,this, null, moved));	//Rook
+				moves.add(new Move(position, positionToCheck, FigurName.KNIGHT,this, null, moved));	//Knight
+				moves.add(new Move(position, positionToCheck, FigurName.BISHOP,this, null, moved));	//Bishop
 			}else {
-				moves.add(new Prio(positionToCheck, 0., false));
-				if(moved == false) {
+				moves.add(new Move(position, positionToCheck, name,this, null, moved));
+				if(!moved) {
 					positionToCheck = addPoints(positionToCheck, direktion);	//two steps forward
 					if(b.getFigur(positionToCheck) == null)
-						moves.add(new Prio(positionToCheck, 0.1, false));	//double Move mostly better than one (opening)
+						moves.add(new Move(position, positionToCheck, name,this, null, moved));	//double
 				}
 			}
 		}
@@ -85,16 +70,16 @@ public class Pawn implements Figur{
 		return moves;
 	}
 	
-	private void pawnCapture(ArrayList<Prio> moves, Point positionToCheck, Figur f) {
+	private void pawnCapture(ArrayList<Move> moves, Point positionToCheck, Figur f) {
 		if(f.isWhite() != isWhite) {
 			f.addProtection(-1);
 			if(positionToCheck.getY() == 7 || positionToCheck.getY() == 0) {
-				moves.add(new Prio(positionToCheck, f.getAbsValue()+3.113, true));	//make Queen
-				moves.add(new Prio(positionToCheck, f.getAbsValue()+3.112, true));	//Rook
-				moves.add(new Prio(positionToCheck, f.getAbsValue()+3.111, true));	//Knight
-				moves.add(new Prio(positionToCheck, f.getAbsValue()+3.110, true));	//Bishop
+				moves.add(new Move(position, positionToCheck, FigurName.QUEEN,this, f, moved));	//make Queen
+				moves.add(new Move(position, positionToCheck, FigurName.ROOK,this, f, moved));	//Rook
+				moves.add(new Move(position, positionToCheck, FigurName.KNIGHT,this, f, moved));	//Knight
+				moves.add(new Move(position, positionToCheck, FigurName.BISHOP,this, f, moved));	//Bishop
 			}else {
-				moves.add(new Prio(positionToCheck, f.getAbsValue()+0.5, false));	//pawn capture
+				moves.add(new Move(position, positionToCheck, name,this, f, moved));	//pawn capture
 			}
 		}else {
 			f.addProtection(1);
@@ -105,11 +90,6 @@ public class Pawn implements Figur{
 	public void moveTo(Point nPoint) {
 		position = nPoint;
 		moved = true;
-	}
-
-	@Override
-	public void setMoved(boolean nMoved) {
-		moved = nMoved;
 	}
 
 	@Override
@@ -132,7 +112,7 @@ public class Pawn implements Figur{
 	}
 
 	@Override
-	public String getName() {
+	public FigurName getName() {
 		return name;
 	}
 
@@ -163,7 +143,7 @@ public class Pawn implements Figur{
 	}
 
 	@Override
-	public Figur clone(){
-		return new Pawn((Point) position.clone(), isWhite, moved, bonus, protection);
+	public void setMoved(boolean moved){
+		this.moved = moved;
 	}
 }

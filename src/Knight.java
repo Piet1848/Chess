@@ -2,7 +2,7 @@ import java.awt.Point;
 import java.util.ArrayList;
 
 public class Knight implements Figur{
-	private final String name = "knight";
+	private final FigurName name = FigurName.KNIGHT;
 	private Point position;
 	private final boolean isWhite;
 	private final Point[] directions = {new Point(-2,1), new Point(-1,2), new Point(1,2), new Point(2,1), new Point(2,-1), new Point(1,-2), new Point(-1,-2), new Point(-2,-1)};
@@ -39,19 +39,21 @@ public class Knight implements Figur{
 	}
 
 	@Override
-	public ArrayList<Prio> possibleMoves(Board b) {
-		ArrayList<Prio> moves = new ArrayList<>();
-		for(int i = 0; i < directions.length; i++) {
-			Point positionToCheck = addPoints(position, directions[i]);
+	public ArrayList<Move> possibleMoves(Board b) {
+		ArrayList<Move> moves = new ArrayList<>();
+		for (Point direction : directions) {
+			Point positionToCheck = addPoints(position, direction);
 			Figur f = b.getFigur(positionToCheck);
-			if(!(positionToCheck.getX() >= 8 || positionToCheck.getX() <= -1 || positionToCheck.getY() >= 8 || positionToCheck.getY() <= -1)) {	//TODO could be more efficient
-				if(f == null) {
-					moves.add(new Prio(positionToCheck, 0., false));
-				}else if(f.isWhite() != isWhite) {
-					f.addProtection(-1);
-					moves.add(new Prio(positionToCheck, f.getAbsValue(), false));	//capture
+			if (!(positionToCheck.getX() >= 8 || positionToCheck.getX() <= -1 || positionToCheck.getY() >= 8 || positionToCheck.getY() <= -1)) {    //TODO could be more efficient
+				if(f != null) {
+					if (f.isWhite() != isWhite) {
+						f.addProtection(-1);
+						moves.add(new Move(position, positionToCheck, name, this, f));
+					} else{
+						f.addProtection(1);
+					}
 				}else {
-					f.addProtection(1);
+					moves.add(new Move(position, positionToCheck, name, this, null));
 				}
 			}
 		}
@@ -94,13 +96,8 @@ public class Knight implements Figur{
 	}
 
 	@Override
-	public String getName() {
+	public FigurName getName() {
 		return name;
-	}
-
-	@Override
-	public void setMoved(boolean moved) {
-		this.moved = moved;
 	}
 
 	@Override
@@ -130,7 +127,7 @@ public class Knight implements Figur{
 	}
 
 	@Override
-	public Figur clone(){
-		return new Knight((Point) position.clone(), isWhite, moved, protection);
+	public void setMoved(boolean moved){
+		this.moved = moved;
 	}
 }

@@ -2,7 +2,7 @@ import java.awt.Point;
 import java.util.ArrayList;
 
 public class Rook implements Figur{
-	private final String name = "rook";
+	private final FigurName name = FigurName.ROOK;
 	private Point position;
 	private final boolean isWhite;
 	private boolean moved = false;
@@ -19,18 +19,6 @@ public class Rook implements Figur{
 			value = 5;
 		}
 	}
-
-	public Rook(Point nPos, boolean nWhite, boolean nMoved, int nProtection) {
-		position = nPos;
-		isWhite = nWhite;
-		if(!nWhite) {
-			value = -5;
-		}else{
-			value = 5;
-		}
-		moved = nMoved;
-		protection = nProtection;
-	}
 	
 	@Override
 	public Point getPosition() {
@@ -38,30 +26,27 @@ public class Rook implements Figur{
 	}
 
 	@Override
-	public ArrayList<Prio> possibleMoves(Board b) {
-		ArrayList<Prio> moves = new ArrayList<>();
-		for(int i = 0; i < directions.length; i++) {
-			Point direktion = directions[i];
+	public ArrayList<Move> possibleMoves(Board b) {
+		ArrayList<Move> moves = new ArrayList<>();
+		for (Point direktion : directions) {
 			Point positionToCheck = addPoints(position, direktion);
 
-			if(!(positionToCheck.getX() == 8 || positionToCheck.getX() == -1 || positionToCheck.getY() == 8 || positionToCheck.getY() == -1)) {
+			if (!(positionToCheck.getX() == 8 || positionToCheck.getX() == -1 || positionToCheck.getY() == 8 || positionToCheck.getY() == -1)) {
 				Figur f = b.getFigur(positionToCheck);
-				while(f == null) {
-					if(moved) {
-						moves.add(new Prio(positionToCheck, 0.1, false));
-					}else {
-						moves.add(new Prio(positionToCheck, -0.3, false));
+				while (f == null) {
+					if (moved) {
+						moves.add(new Move(position, positionToCheck, name, this, null, moved));
 					}
 					positionToCheck = addPoints(positionToCheck, direktion);
 					f = b.getFigur(positionToCheck);
-					if(positionToCheck.getX() >= 8 || positionToCheck.getX() <= -1 || positionToCheck.getY() >= 8 || positionToCheck.getY() <= -1) {
-						break;	//ends the loop
+					if (positionToCheck.getX() >= 8 || positionToCheck.getX() <= -1 || positionToCheck.getY() >= 8 || positionToCheck.getY() <= -1) {
+						break;    //ends the loop
 					}
 				}
-				if(f != null) {
+				if (f != null) {
 					if (f.isWhite() != isWhite) {
 						f.addProtection(-1);
-						moves.add(new Prio(positionToCheck, f.getAbsValue(), false));    //capture
+						moves.add(new Move(position, positionToCheck, name, this, f, moved));
 					} else {
 						f.addProtection(1);
 					}
@@ -97,13 +82,8 @@ public class Rook implements Figur{
 	}
 	
 	@Override
-	public String getName() {
+	public FigurName getName() {
 		return name;
-	}
-
-	@Override
-	public void setMoved(boolean moved) {
-		this.moved = moved;
 	}
 
 	@Override
@@ -136,7 +116,7 @@ public class Rook implements Figur{
 	}
 
 	@Override
-	public Figur clone(){
-		return new Rook((Point) position.clone(), isWhite, moved, protection);
+	public void setMoved(boolean moved){
+		this.moved = moved;
 	}
 }

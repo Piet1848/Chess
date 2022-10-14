@@ -1,7 +1,7 @@
 import javax.swing.JFrame;
 
 public class Main {
-	private Board board;
+	private final Board board;
 	private JFrame graphic;
 	private Anzeige anzeige;
 	

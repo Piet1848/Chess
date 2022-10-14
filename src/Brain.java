@@ -32,7 +32,6 @@ public class  Brain {
 		long startTime = System.currentTimeMillis();
 		double currentEval = evaluateBoard(whiteTurn, board);
 		System.out.print(" " + currentEval);
-
 		actEvaluation = minimax(board, 1, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, whiteTurn);
 		System.out.print(" ActEval: " + actEvaluation);
 		System.out.println(" " + (System.currentTimeMillis()-startTime)/1000.);
@@ -52,11 +51,8 @@ public class  Brain {
 			return evaluateBoard(maximizingPlayer, b);
 		}
 		ArrayList<Move> moves;
-		if(currentDepth == depth - 1) {
-			moves = b.getFastSortedMoves(maximizingPlayer);
-		}else {
-			moves = getSortedMoves(maximizingPlayer, b);
-		}
+
+		moves = getSortedMoves(maximizingPlayer, b);
 		
 		if(moves.size() == 0) {
 			return 0.;
@@ -68,7 +64,7 @@ public class  Brain {
 		if(maximizingPlayer) {
 			double maxEval = Double.NEGATIVE_INFINITY;
 			for(int i = 0; i < numberMoves; i++) {
-				double eval = calcMove(b, currentDepth, alpha, beta, true, moves, i);
+				double eval = calcMove(b, currentDepth, alpha, beta, true, moves.get(i));
 				if(maxEval < eval) {
 					maxEval = eval;
 					currentMaxPos = i;
@@ -84,7 +80,7 @@ public class  Brain {
 		}else {
 			double minEval = Double.POSITIVE_INFINITY;
 			for(int i = moves.size()-1; i >= moves.size()-numberMoves; i--) {
-				double eval = calcMove(b, currentDepth, alpha, beta, false, moves, i);
+				double eval = calcMove(b, currentDepth, alpha, beta, false, moves.get(i));
 				if(minEval > eval) {
 					minEval = eval;
 					currentMaxPos = i;
@@ -100,15 +96,10 @@ public class  Brain {
 		}
 	}
 
-	private double calcMove(Board b, int currentDepth, double alpha, double beta, boolean maximizingPlayer, ArrayList<Move> moves, int i) {
-		ArrayList<Figur> oldPosition = b.getFiguren();
-		ArrayList<Figur> position = new ArrayList<>();
-		for (int j = 0; j < oldPosition.size(); j++) {
-			position.add(oldPosition.get(j).clone());
-		}
-		b.move(moves.get(i));
+	private double calcMove(Board b, int currentDepth, double alpha, double beta, boolean maximizingPlayer, Move move) {
+		b.move(move);
 		double eval = minimax(b, currentDepth + 1, alpha, beta, !maximizingPlayer);	//TODO
-		b.setPosition(position);
+		b.undoMove(move);
 		return eval;
 	}
 
@@ -121,8 +112,8 @@ public class  Brain {
 	private ArrayList<Move> sortMoves(ArrayList<Move> moves, boolean isWhite, Board board) {
 		ArrayList<Double> values = new ArrayList<>();
 
-		for(int i = 0; i < moves.size(); i++) {
-			values.add(getValueMove(moves.get(i), isWhite, board));
+		for (Move move : moves) {
+			values.add(getValueMove(move, isWhite, board));
 		}
 
 		//Sort
@@ -140,20 +131,13 @@ public class  Brain {
 			moves.set(j, tempMove);
 			values.set(j, temp);
 		}
-		//if(!isWhite)
-		//	Collections.reverse(moves);
 		return moves;
 	}
 
 	private double getValueMove(Move move, boolean isWhite, Board board) {
-		ArrayList<Figur> oldPosition = board.getFiguren();
-		ArrayList<Figur> position = new ArrayList<>();
-		for (int i = 0; i < oldPosition.size(); i++) {
-			position.add(oldPosition.get(i).clone());
-		}
 		board.move(move);
 		double value = evaluateBoard(isWhite, board);	//TODO
-		board.setPosition(position);
+		board.undoMove(move);
 		return value;
 	}
 
@@ -179,8 +163,7 @@ public class  Brain {
 
 	private double protectionEvaluation(ArrayList<Figur> figuren) {
 		double protectionSum = 0.;
-		for(int i = 0; i < figuren.size(); i++) {
-			Figur f = figuren.get(i);
+		for (Figur f : figuren) {
 			int multi = f.isWhite() ? 1 : -1;
 			protectionSum += f.getProtection() * multi;
 		}
@@ -196,7 +179,7 @@ public class  Brain {
 	}
 
 	private double centerPawn(double figurenAbsValue, Board b) {
-		Figur[][] board = b.getPosition();
+		Figur[][] board = b.getBoard();
 		double sum = 0.;
 		sum += getCenterValue(board[3][3]);
 		sum += getCenterValue(board[3][4]);
@@ -211,7 +194,7 @@ public class  Brain {
 			if(!toCheck.isWhite()) {
 				multi = -1.;
 			}
-			if(toCheck.getName().equals("pawn")) {
+			if(toCheck.getName() == FigurName.PAWN) {
 				return multi;
 			}else {
 				return 0.35*multi;
@@ -221,58 +204,57 @@ public class  Brain {
 	}
 
 	private double kingPosition(double figurenAbsValue, Board b, ArrayList<Figur> figuren) {
-		Figur[][] board = b.getPosition();
+		Figur[][] board = b.getBoard();
 		double sum = 0.;
 		boolean whiteKing = false;
 		boolean blackKing = false;
-		for(int i = 0; i < figuren.size(); i++) {
-			if(figuren.get(i).getName().equals("king")) {
-				Figur king = figuren.get(i);
-				int kingX = king.getPosition().x;
-				int kingY = king.getPosition().y;
+		for (Figur figur : figuren) {
+			if (figur.getName() == FigurName.KING) {
+				int kingX = figur.getPosition().x;
+				int kingY = figur.getPosition().y;
 				double multi = 1.;
-				if(king.isWhite()) {
+				if (figur.isWhite()) {
 					whiteKing = true;
 					int coveredFront = 0;
-					if(kingY<7) {
-						if(board[kingX][kingY+1] != null) {
+					if (kingY < 7) {
+						if (board[kingX][kingY + 1] != null) {
 							coveredFront++;
 						}
-						if(kingX > 0 && board[kingX-1][kingY+1] != null) {
+						if (kingX > 0 && board[kingX - 1][kingY + 1] != null) {
 							coveredFront++;
 						}
-						if(kingX < 7 && board[kingX+1][kingY+1] != null) {
+						if (kingX < 7 && board[kingX + 1][kingY + 1] != null) {
 							coveredFront++;
 						}
-						sum += coveredFront*figurenAbsValue/78.;
+						sum += coveredFront * figurenAbsValue / 78.;
 					}
-				}else {
+				} else {
 					blackKing = true;
 					multi = -1.;
-					if(kingY>0) {
+					if (kingY > 0) {
 						int coveredFront = 0;
-						if(board[kingX][kingY-1] != null) {
+						if (board[kingX][kingY - 1] != null) {
 							coveredFront++;
 						}
-						if(kingX > 0 && board[kingX-1][kingY-1] != null) {
+						if (kingX > 0 && board[kingX - 1][kingY - 1] != null) {
 							coveredFront++;
 						}
-						if(kingX < 7 && board[kingX+1][kingY-1] != null) {
+						if (kingX < 7 && board[kingX + 1][kingY - 1] != null) {
 							coveredFront++;
 						}
-						sum -= coveredFront*figurenAbsValue/78.;
+						sum -= coveredFront * figurenAbsValue / 78.;
 					}
 				}
-				if(kingX < 2 || kingX > 5){
+				if (kingX < 2 || kingX > 5) {
 					sum *= 2.;
-					sum += multi*(figurenAbsValue-30)/15.;
-				}else if(king.getMoved()) {
-					sum -= multi*(figurenAbsValue-30)/20.;
+					sum += multi * (figurenAbsValue - 30) / 15.;
+				} else if (figur.getMoved()) {
+					sum -= multi * (figurenAbsValue - 30) / 20.;
 				}
-				sum += (3.5-Math.abs(3.5-kingY))*multi*(30-figurenAbsValue)/80.;	//endgame position
-				sum += (3.5-Math.abs(3.5-kingX))*multi*(30-figurenAbsValue)/80.;
-			}else {
-				sum += figuren.get(i).getBonus();
+				sum += (3.5 - Math.abs(3.5 - kingY)) * multi * (30 - figurenAbsValue) / 80.;    //endgame position
+				sum += (3.5 - Math.abs(3.5 - kingX)) * multi * (30 - figurenAbsValue) / 80.;
+			} else {
+				sum += figur.getBonus();
 			}
 		}
 		if(!blackKing) {
@@ -285,16 +267,16 @@ public class  Brain {
 
 	private double figurenGetAbsValue(ArrayList<Figur> figuren) {
 		double sum = 0.;
-		for(int i = 0; i < figuren.size(); i++) {
-			sum += Math.abs(figuren.get(i).getValue());
+		for (Figur figur : figuren) {
+			sum +=figur.getAbsValue();
 		}
 		return sum;
 	}
 
 	private double figurenCounter(ArrayList<Figur> figuren) {
 		double sum = 0.;
-		for(int i = 0; i < figuren.size(); i++) {
-			sum += figuren.get(i).getValue();
+		for (Figur figur : figuren) {
+			sum += figur.getValue();
 		}
 		return sum;
 	}

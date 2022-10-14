@@ -2,7 +2,7 @@ import java.awt.Point;
 import java.util.ArrayList;
 
 public class Bishop implements Figur{
-	private final String name = "bishop";
+	private final FigurName name = FigurName.BISHOP;
 	private Point position;
 	private final boolean isWhite;
 	private boolean moved = false;
@@ -38,25 +38,24 @@ public class Bishop implements Figur{
 	}
 
 	@Override
-	public ArrayList<Prio> possibleMoves(Board b) {
-		ArrayList<Prio> moves = new ArrayList<>();
-		for(int i = 0; i < directions.length; i++) {
-			Point direktion = directions[i];
+	public ArrayList<Move> possibleMoves(Board b) {
+		ArrayList<Move> moves = new ArrayList<>();
+		for (Point direktion : directions) {
 			Point positionToCheck = addPoints(position, direktion);
 			Figur f = b.getFigur(positionToCheck);
-			if(!(positionToCheck.getX() == 8 || positionToCheck.getX() == -1 || positionToCheck.getY() == 8 || positionToCheck.getY() == -1)) {
-				while(f == null) {
-					moves.add(new Prio(positionToCheck, 0., false));
+			if (!(positionToCheck.getX() == 8 || positionToCheck.getX() == -1 || positionToCheck.getY() == 8 || positionToCheck.getY() == -1)) {
+				while (f == null) {
+					moves.add(new Move(position, positionToCheck, name, this, null));
 					positionToCheck = addPoints(positionToCheck, direktion);
 					f = b.getFigur(positionToCheck);
-					if(positionToCheck.getX() >= 8 || positionToCheck.getX() <= -1 || positionToCheck.getY() >= 8 || positionToCheck.getY() <= -1) {
-						f = b.getFigur(position);	//ends the while
+					if (positionToCheck.getX() >= 8 || positionToCheck.getX() <= -1 || positionToCheck.getY() >= 8 || positionToCheck.getY() <= -1) {
+						break;
 					}
 				}
 				if(f != null) {
 					if (f.isWhite() != isWhite) {
 						f.addProtection(-1);
-						moves.add(new Prio(positionToCheck, f.getAbsValue(), false));
+						moves.add(new Move(position, positionToCheck, name, this, f));
 					} else {
 						f.addProtection(1);
 					}
@@ -91,13 +90,8 @@ public class Bishop implements Figur{
 	}
 
 	@Override
-	public String getName() {
+	public FigurName getName() {
 		return name;
-	}
-
-	@Override
-	public void setMoved(boolean moved) {
-		this.moved = moved;
 	}
 
 	@Override
@@ -130,7 +124,7 @@ public class Bishop implements Figur{
 	}
 
 	@Override
-	public Figur clone(){
-		return new Bishop((Point) position.clone(), isWhite, moved, protection);
+	public void setMoved(boolean moved){
+		this.moved = moved;
 	}
 }

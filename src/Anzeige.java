@@ -106,34 +106,40 @@ public class Anzeige extends JPanel implements MouseListener, MouseMotionListene
 		}
 	}
 
-	private void drawImage(int i, int j, String numberFigure, boolean isWhite, Graphics g) {
+	private void drawImage(int i, int j, FigurName name, boolean isWhite, Graphics g) {
 		Image figure;
 		if(isWhite){
-			figure = getImage(numberFigure, wPawn, wRook, wKnight, wBishop, wQueen, wKing);
+			figure = getImage(name, wPawn, wRook, wKnight, wBishop, wQueen, wKing);
 		}
 		else {
-			figure = getImage(numberFigure, bPawn, bRook, bKnight, bBishop, bQueen, bKing);
+			figure = getImage(name, bPawn, bRook, bKnight, bBishop, bQueen, bKing);
 		}
 		g.drawImage(figure, i, j, size, size, null);
 	}
 	
-	private Image getImage(String numberFigure, Image pawn, Image rook, Image knight, Image bishop, Image queen, Image king) {
-		switch (numberFigure) {
-		case ("pawn"):
-			return pawn;
-		case ("rook"):
-			return rook;
-		case ("knight"):
-			return knight;
-		case ("bishop"):
-			return bishop;
-		case ("queen"):
-			return queen;
-		case ("king"):
-			return king;
-		default:
-			System.out.println("Error no Image at getImage()");
-			return null;
+	private Image getImage(FigurName name, Image pawn, Image rook, Image knight, Image bishop, Image queen, Image king) {
+		switch (name){
+			case KNIGHT -> {
+				return knight;
+			}
+			case BISHOP -> {
+				return bishop;
+			}
+			case QUEEN -> {
+				return queen;
+			}
+			case ROOK -> {
+				return rook;
+			}
+			case PAWN -> {
+				return pawn;
+			}
+			case KING -> {
+				return king;
+			}default -> {
+				System.out.println("Error no Image at getImage()");
+				return null;
+			}
 		}
 	}
 	
@@ -184,16 +190,14 @@ public class Anzeige extends JPanel implements MouseListener, MouseMotionListene
 			nField.x = ((mousePoint.x) / size) -1;
 			nField.y = ((mousePoint.y) / size) -1;
 			if((selectedField.x != nField.x || selectedField.y != nField.y) && (nField.x >= 0 && nField.x < 8 && nField.y >= 0 && nField.y < 8)) {
-				if(selectedFigure.getName().equals("pawn") && (nField.y == 0  || nField.y == 7)) {
-					board.move(new Move(selectedField, nField, 3.113, true));
-					lastMove = new Move(selectedField, nField, 3.113, true);
+				if(selectedFigure.getName() == FigurName.PAWN && (nField.y == 0  || nField.y == 7)) {
+					lastMove = new Move(selectedField, nField, FigurName.QUEEN, board.getFigur(selectedField), board.getFigur(nField));
 				}else {
-					board.move(new Move(selectedField, nField, false));
-					lastMove = new Move(selectedField, nField, false);
+					lastMove = new Move(selectedField, nField, board.getFigur(selectedField).getName(), board.getFigur(selectedField), board.getFigur(nField));
 				}
+				board.move(lastMove);
 				whiteTurn = !whiteTurn;
 				if(!wait) {
-//					actEvaluation = minimax(board, 4., Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, whiteTurn, 0);
 					brain.evaluateBoard(whiteTurn, board);
 				}
 			}
@@ -216,8 +220,8 @@ public class Anzeige extends JPanel implements MouseListener, MouseMotionListene
 
 	private double figurenCounter(ArrayList<Figur> figuren) {
 		double sum = 0.;
-		for(int i = 0; i < figuren.size(); i++) {
-			sum += figuren.get(i).getValue();
+		for (Figur figur : figuren) {
+			sum += figur.getValue();
 		}
 		return sum;
 	}
