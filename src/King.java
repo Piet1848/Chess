@@ -20,6 +20,19 @@ public class King implements Figur{
 			value = 1000;
 		}
 	}
+
+	public King(Point nPos, boolean nWhite, boolean nMoved, double nBonus, int nProtection){
+		position = nPos;
+		isWhite = nWhite;
+		if(!nWhite) {
+			value = -1000;
+		}else {
+			value = 1000;
+		}
+		moved = nMoved;
+		bonus = nBonus;
+		protection = nProtection;
+	}
 	
 	@Override
 	public Point getPosition() {
@@ -33,28 +46,27 @@ public class King implements Figur{
 			Point direktion = directions[i];
 			Point positionToCheck = addPoints(position, direktion);
 			Figur f = b.getFigur(positionToCheck);
-			if(positionToCheck.getX() == 8 || positionToCheck.getX() == -1 || positionToCheck.getY() == 8 || positionToCheck.getY() == -1) {
-				f = b.getFigur(position);	//ends the loop
-			}
-			if(f == null) {
-				if(moved) {
-					moves.add(new Prio(positionToCheck, 0., false));
+			if(!(positionToCheck.getX() == 8 || positionToCheck.getX() == -1 || positionToCheck.getY() == 8 || positionToCheck.getY() == -1)) {
+				if(f == null) {
+					if(moved) {
+						moves.add(new Prio(positionToCheck, 0., false));
+					}else {
+						moves.add(new Prio(positionToCheck, -0.6, false));
+					}
+				}else if(f.isWhite() != isWhite) {
+					f.addProtection(-1);
+					if(moved) {
+						moves.add(new Prio(positionToCheck, f.getAbsValue(), false));
+					}else {
+						moves.add(new Prio(positionToCheck, f.getAbsValue()-0.5, false));
+					}
 				}else {
-					moves.add(new Prio(positionToCheck, -0.6, false));
+					f.addProtection(1);
 				}
-			}else if(f.isWhite() != isWhite) {
-				f.addProtection(-1);
-				if(moved) {
-					moves.add(new Prio(positionToCheck, f.getValue(), false));
-				}else {
-					moves.add(new Prio(positionToCheck, f.getValue()-0.5, false));
-				}
-			}else if(!f.getName().equals("king")){
-				f.addProtection(1);
 			}
 		}
 		if(!moved) {	//TODO check if in Check
-			ArrayList<Figur> rooks = b.getRooks(isWhite);
+			ArrayList<Figur> rooks = b.getNotMovedRooks(isWhite);
 			for(int i = 0; i < rooks.size(); i++) {
 				Point move;
 				if(rooks.get(i).getPosition().x-position.x < 0) {	//Kingside Castle
@@ -98,7 +110,12 @@ public class King implements Figur{
 	public double getValue() {
 		return value;
 	}
-	
+
+	@Override
+	public double getAbsValue(){
+		return Math.abs(value);
+	}
+
 	@Override
 	public String getName() {
 		return name;
@@ -118,19 +135,26 @@ public class King implements Figur{
 	public double getBonus() {
 		return bonus;
 	}
-	
+
 	@Override
-	public void resetProtection() {
-		protection = 0;
+	public void resetProtection(boolean currentIsWhite) {
+		if(isWhite == currentIsWhite)
+			protection = 0;
 	}
-	
+
 	@Override
 	public void addProtection(int x) {
-		protection += x;
+		if(x < 0)	//only attacs
+			protection += x;
 	}
 
 	@Override
 	public double getProtection() {
 		return 0;
+	}
+
+	@Override
+	public Figur clone(){
+		return new King((Point) position.clone(), isWhite, moved, bonus, protection);
 	}
 }

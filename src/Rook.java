@@ -4,18 +4,32 @@ import java.util.ArrayList;
 public class Rook implements Figur{
 	private final String name = "rook";
 	private Point position;
-	private boolean isWhite;
+	private final boolean isWhite;
 	private boolean moved = false;
 	private final Point[] directions = {new Point(1, 0), new Point(-1,0), new Point(0,1), new Point(0,-1)};
-	private double value = 5.;
+	private final double value;
 	private int protection;
 	
 	public Rook(Point nPos, boolean nWhite) {
 		position = nPos;
 		isWhite = nWhite;
 		if(!nWhite) {
-			value *= -1;
+			value = -5;
+		}else{
+			value = 5;
 		}
+	}
+
+	public Rook(Point nPos, boolean nWhite, boolean nMoved, int nProtection) {
+		position = nPos;
+		isWhite = nWhite;
+		if(!nWhite) {
+			value = -5;
+		}else{
+			value = 5;
+		}
+		moved = nMoved;
+		protection = nProtection;
 	}
 	
 	@Override
@@ -29,29 +43,29 @@ public class Rook implements Figur{
 		for(int i = 0; i < directions.length; i++) {
 			Point direktion = directions[i];
 			Point positionToCheck = addPoints(position, direktion);
-			Figur f;
-			if(positionToCheck.getX() == 8 || positionToCheck.getX() == -1 || positionToCheck.getY() == 8 || positionToCheck.getY() == -1) {
-				f = b.getFigur(position);	//ends the loop
-			}else {
-				f = b.getFigur(positionToCheck);
-			}
-			while(f == null) {
-				if(moved) {
-					moves.add(new Prio(positionToCheck, 0.1, false));
-				}else {
-					moves.add(new Prio(positionToCheck, -0.3, false));
+
+			if(!(positionToCheck.getX() == 8 || positionToCheck.getX() == -1 || positionToCheck.getY() == 8 || positionToCheck.getY() == -1)) {
+				Figur f = b.getFigur(positionToCheck);
+				while(f == null) {
+					if(moved) {
+						moves.add(new Prio(positionToCheck, 0.1, false));
+					}else {
+						moves.add(new Prio(positionToCheck, -0.3, false));
+					}
+					positionToCheck = addPoints(positionToCheck, direktion);
+					f = b.getFigur(positionToCheck);
+					if(positionToCheck.getX() >= 8 || positionToCheck.getX() <= -1 || positionToCheck.getY() >= 8 || positionToCheck.getY() <= -1) {
+						break;	//ends the loop
+					}
 				}
-				positionToCheck = addPoints(positionToCheck, direktion);
-				f = b.getFigur(positionToCheck);
-				if(positionToCheck.getX() >= 8 || positionToCheck.getX() <= -1 || positionToCheck.getY() >= 8 || positionToCheck.getY() <= -1) {
-					f = b.getFigur(position);	//ends the loop
+				if(f != null) {
+					if (f.isWhite() != isWhite) {
+						f.addProtection(-1);
+						moves.add(new Prio(positionToCheck, f.getAbsValue(), false));    //capture
+					} else {
+						f.addProtection(1);
+					}
 				}
-			}
-			if(f.isWhite() != isWhite) {
-				f.addProtection(-1);
-				moves.add(new Prio(positionToCheck, 0.5, false));	//capture
-			}else {
-				f.addProtection(1);
 			}
 		}
 		return moves;
@@ -76,6 +90,11 @@ public class Rook implements Figur{
 	public double getValue() {
 		return value;
 	}
+
+	@Override
+	public double getAbsValue(){
+		return Math.abs(value);
+	}
 	
 	@Override
 	public String getName() {
@@ -99,10 +118,11 @@ public class Rook implements Figur{
 		}
 		return 0;
 	}
-	
+
 	@Override
-	public void resetProtection() {
-		protection = 0;
+	public void resetProtection(boolean currentIsWhite) {
+		if(isWhite == currentIsWhite)
+			protection = 0;
 	}
 	
 	@Override
@@ -112,9 +132,11 @@ public class Rook implements Figur{
 
 	@Override
 	public double getProtection() {
-		if(protection < 0) {
-			return value;
-		}
-		return 0;
+		return protection;
+	}
+
+	@Override
+	public Figur clone(){
+		return new Rook((Point) position.clone(), isWhite, moved, protection);
 	}
 }

@@ -4,38 +4,19 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e75a9d46-7f6f-41b8-a7b0-6fe03c603922" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ChessV2.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/res/BBishop.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/res/BKing.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/res/BKnight.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/res/BPawn.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/res/BQueen.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/res/BRook.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/res/WBishop.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/res/WKing.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/res/WKnight.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/res/WPawn.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/res/WQueen.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/res/WRook.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Anzeige.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Bishop.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Board.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Brain.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Figur.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/King.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Knight.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Main.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Move.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Pawn.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Prio.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Queen.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Rook.java" afterDir="false" />
+    <list default="true" id="e75a9d46-7f6f-41b8-a7b0-6fe03c603922" name="Changes" comment="With redo moves">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChessV2.iml" beforeDir="false" afterPath="$PROJECT_DIR$/ChessV2.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Anzeige.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Anzeige.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Bishop.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Bishop.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Board.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Board.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Brain.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Brain.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Figur.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Figur.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/King.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/King.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Knight.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Knight.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Pawn.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Pawn.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Queen.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Queen.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Rook.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Rook.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -67,6 +48,10 @@
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
     &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
+    &quot;Downloaded.Files.Path.Enabled&quot;: &quot;false&quot;,
+    &quot;Repository.Attach.Annotations&quot;: &quot;false&quot;,
+    &quot;Repository.Attach.JavaDocs&quot;: &quot;false&quot;,
+    &quot;Repository.Attach.Sources&quot;: &quot;false&quot;,
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
@@ -119,8 +104,28 @@
       <workItem from="1665485863672" duration="848000" />
       <workItem from="1665517395347" duration="5785000" />
       <workItem from="1665565788521" duration="601000" />
-      <workItem from="1665566910425" duration="4560000" />
+      <workItem from="1665566910425" duration="9139000" />
+      <workItem from="1665592811720" duration="7567000" />
+      <workItem from="1665606259227" duration="3600000" />
+      <workItem from="1665674818884" duration="1199000" />
+      <workItem from="1665744121957" duration="636000" />
+      <workItem from="1665759545737" duration="1141000" />
     </task>
+    <task id="LOCAL-00001" summary="With redo moves">
+      <created>1665571525025</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1665571525025</updated>
+    </task>
+    <task id="LOCAL-00002" summary="With redo moves">
+      <created>1665571950573</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1665571950573</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -131,7 +136,13 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="CUSTOM_BOOLEAN_PROPERTIES">
+                <map>
+                  <entry key="Show.Git.Branches" value="true" />
+                </map>
+              </option>
+            </State>
           </value>
         </entry>
       </map>
@@ -139,5 +150,10 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
+    <MESSAGE value="With redo moves" />
+    <option name="LAST_COMMIT_MESSAGE" value="With redo moves" />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/ChessV2$Main.ic" NAME="Main Coverage Results" MODIFIED="1665600992811" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" />
   </component>
 </project>

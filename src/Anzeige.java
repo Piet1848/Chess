@@ -97,6 +97,7 @@ public class Anzeige extends JPanel implements MouseListener, MouseMotionListene
 			g.drawString("Loading", 20, 15+size/3);
 		}
 		g.drawString(Double.toString(brain.getActEvaluation()), 20, 20+size/3*2);
+		g.drawString(Double.toString(brain.getCurrentActEvaluation(whiteTurn, board)), 400, 20+size/3*2);
 		//		g.drawString(Double.toString(board.evaluateBoard(true)), 50, 20+size/3*2);
 		//		g.drawString(Double.toString(board.evaluateBoard(false)), 50, 20+size);
 
@@ -182,7 +183,7 @@ public class Anzeige extends JPanel implements MouseListener, MouseMotionListene
 			Point nField = new Point();
 			nField.x = ((mousePoint.x) / size) -1;
 			nField.y = ((mousePoint.y) / size) -1;
-			if(selectedField.x != nField.x || selectedField.y != nField.y) {
+			if((selectedField.x != nField.x || selectedField.y != nField.y) && (nField.x >= 0 && nField.x < 8 && nField.y >= 0 && nField.y < 8)) {
 				if(selectedFigure.getName().equals("pawn") && (nField.y == 0  || nField.y == 7)) {
 					board.move(new Move(selectedField, nField, 3.113, true));
 					lastMove = new Move(selectedField, nField, 3.113, true);
@@ -206,9 +207,19 @@ public class Anzeige extends JPanel implements MouseListener, MouseMotionListene
 			lastMove = move;
 			whiteTurn = !whiteTurn;
 			lastLoadingTime = System.currentTimeMillis();
+			double count = figurenCounter(board.getFiguren());
+			System.out.println("Count = " + count);
 		}
 		wait = false;
 		this.repaint();
+	}
+
+	private double figurenCounter(ArrayList<Figur> figuren) {
+		double sum = 0.;
+		for(int i = 0; i < figuren.size(); i++) {
+			sum += figuren.get(i).getValue();
+		}
+		return sum;
 	}
 
 	@Override

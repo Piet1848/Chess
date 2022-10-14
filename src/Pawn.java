@@ -3,33 +3,40 @@ import java.util.ArrayList;
 
 public class Pawn implements Figur{
 	private final String name = "pawn";
-	private boolean isWhite;
+	private final boolean isWhite;
 	private Point position;
 	private boolean moved = false;
-	private double value = 1.;
-	private Point direktion;
+	private final double value;
+	private final Point direktion;
 	private double bonus = 0.;
 	private int protection;
 
 	public Pawn(Point nPos, boolean nWhite) {
 		position = nPos;
 		isWhite = nWhite;
-		direktion = new Point(0, 1);
 		if(!nWhite) {
-			value *= -1;
-			direktion.setLocation(0, -1);
+			value = -1;
+			direktion = new Point(0, -1);
+		}else{
+			value = 1;
+			direktion = new Point(0, 1);
 		}
 	}
 
-	public Pawn(Point nPos, boolean nWhite, boolean promotion) {
+	public Pawn(Point nPos, boolean nWhite, boolean nMoved, double nBonus, int nProtection) {
 		position = nPos;
 		isWhite = nWhite;
 		moved = true;
-		direktion = new Point(0, 1);
 		if(!nWhite) {
-			value *= -1;
-			direktion.setLocation(0, -1);
+			value = -1;
+			direktion = new Point(0, -1);
+		}else{
+			value = 1;
+			direktion = new Point(0, 1);
 		}
+		moved = nMoved;
+		bonus = nBonus;
+		protection = nProtection;
 	}
 
 	@Override
@@ -66,7 +73,6 @@ public class Pawn implements Figur{
 
 		positionToCheck = addPoints(addPoints(position, direktion), new Point(1, 0));
 		f = b.getFigur(positionToCheck);
-		boolean protectsPawn = false;
 		if(f != null) {
 			pawnCapture(moves, positionToCheck, f);
 		}
@@ -83,19 +89,15 @@ public class Pawn implements Figur{
 		if(f.isWhite() != isWhite) {
 			f.addProtection(-1);
 			if(positionToCheck.getY() == 7 || positionToCheck.getY() == 0) {
-				moves.add(new Prio(positionToCheck, f.getValue()+3.113, true));	//make Queen
-				moves.add(new Prio(positionToCheck, f.getValue()+3.112, true));	//Rook
-				moves.add(new Prio(positionToCheck, f.getValue()+3.111, true));	//Knight
-				moves.add(new Prio(positionToCheck, f.getValue()+3.110, true));	//Bishop
+				moves.add(new Prio(positionToCheck, f.getAbsValue()+3.113, true));	//make Queen
+				moves.add(new Prio(positionToCheck, f.getAbsValue()+3.112, true));	//Rook
+				moves.add(new Prio(positionToCheck, f.getAbsValue()+3.111, true));	//Knight
+				moves.add(new Prio(positionToCheck, f.getAbsValue()+3.110, true));	//Bishop
 			}else {
-				moves.add(new Prio(positionToCheck, f.getValue()+0.5, false));	//pawn capture
+				moves.add(new Prio(positionToCheck, f.getAbsValue()+0.5, false));	//pawn capture
 			}
-		}else if(isWhite){
-			f.addProtection(1);
-			bonus += 0.65;
 		}else {
 			f.addProtection(1);
-			bonus -= 0.65;
 		}
 	}
 	
@@ -125,6 +127,11 @@ public class Pawn implements Figur{
 	}
 
 	@Override
+	public double getAbsValue(){
+		return Math.abs(value);
+	}
+
+	@Override
 	public String getName() {
 		return name;
 	}
@@ -138,10 +145,11 @@ public class Pawn implements Figur{
 	public double getBonus() {
 		return bonus;
 	}
-	
+
 	@Override
-	public void resetProtection() {
-		protection = 0;
+	public void resetProtection(boolean currentIsWhite) {
+		if(isWhite == currentIsWhite)
+			protection = 0;
 	}
 	
 	@Override
@@ -151,9 +159,11 @@ public class Pawn implements Figur{
 
 	@Override
 	public double getProtection() {
-		if(protection < 0) {
-			return value;
-		}
-		return 0;
+		return protection;
+	}
+
+	@Override
+	public Figur clone(){
+		return new Pawn((Point) position.clone(), isWhite, moved, bonus, protection);
 	}
 }

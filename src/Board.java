@@ -1,16 +1,15 @@
 import java.awt.Point;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 
 public class Board {
 	private Figur[][] board;
 	private ArrayList<Figur> figuren;
 
-	private ArrayList<Boolean> movedStack;
 	private boolean[][] lastChangingBoard;
 	
 	public Board() {
-		movedStack = new ArrayList<>();
 		board = new Figur[8][8];
 		initBoard();
 		updateArrayList();
@@ -34,7 +33,6 @@ public class Board {
 
 	public void setPosition(ArrayList<Figur> position){
 		figuren = position;
-		movedStack = new ArrayList<>();
 		board = new Figur[8][8];
 		for(int i = 0; i < position.size(); i++){
 			Point pos = position.get(i).getPosition();
@@ -59,8 +57,8 @@ public class Board {
 		return board[(int) p.getX()][(int) p.getY()];
 	}
 
-	public ArrayList<Move> getAllMoves(boolean isWhite){
-		resetMoves();
+	public ArrayList<Move> getAllMoves(boolean isWhite, boolean checkCheck){
+		resetProtection(isWhite);
 		boolean[][] changingBoard = new boolean[8][8];
 		ArrayList<Move> moves = new ArrayList<>();
 		for(int i = 0; i < figuren.size(); i++) {
@@ -76,12 +74,29 @@ public class Board {
 			}
 		}
 		lastChangingBoard = changingBoard;
+		if(checkCheck)
+			checkCheck(moves, isWhite);
 		return moves;
 	}
+
+	private void checkCheck(ArrayList<Move> moves, boolean isWhite){
+		for (int i = 0; i < moves.size(); i++) {
+			ArrayList<Figur> oldPosition = getFiguren();
+			ArrayList<Figur> position = new ArrayList<>();
+			for (int j = 0; j < oldPosition.size(); j++) {
+				position.add(oldPosition.get(j).clone());
+			}
+			move(moves.get(i));
+			if(inCheck(isWhite)){
+				moves.remove(i--);
+			}
+			setPosition(position);
+		}
+	}
 	
-	private void resetMoves() {
+	private void resetProtection(boolean isWhite) {
 		for(int i = 0; i < figuren.size(); i++) {
-			figuren.get(i).resetProtection();
+			figuren.get(i).resetProtection(isWhite);
 		}
 	}
 	
@@ -98,21 +113,23 @@ public class Board {
 	}
 	
 	public ArrayList<Move> getFastSortedMoves(boolean isWhite){
-		return oldSort(getAllMoves(isWhite));
+		return oldSort(getAllMoves(isWhite, true), isWhite);
 	}
 	
-	private ArrayList<Move> oldSort(ArrayList<Move> moves){
+	private ArrayList<Move> oldSort(ArrayList<Move> moves, boolean isWhite){
 		Move tempMove;
 		for(int i = 1; i < moves.size(); i++) {
 			tempMove = moves.get(i);
 			double vTempMove = tempMove.prio;
 			int j = i;
-			while(j > 0 && moves.get(j-1).prio < vTempMove) {	//old .prio
+			while(j > 0 && moves.get(j-1).prio < vTempMove) {
 				moves.set(j, moves.get(j-1));
 				j--;
 			}
 			moves.set(j, tempMove);
 		}
+		if(!isWhite)
+			Collections.reverse(moves);
 		return moves;
 	}
 	
@@ -120,7 +137,7 @@ public class Board {
 		ArrayList<Move> n = new ArrayList<>();
 		for(int i = 0; i < movesPrio.size(); i++) {
 			if(movesPrio.get(i).point.getX() >= 8 || movesPrio.get(i).point.getX() <= -1 || movesPrio.get(i).point.getY() >= 8 || movesPrio.get(i).point.getY() <= -1) {
-				System.out.print("Error2: ");
+				System.out.print("Error toArrayMove: ");
 				System.out.println(board[(int) p.getX()][(int) p.getY()].getName() + " at: x" + p.getX() + ", y" + p.getY());
 				printBoard();
 			}
@@ -170,9 +187,8 @@ public class Board {
 		return false;
 	}
 	
-	public Figur move(Move move) {
+	public void move(Move move) {
 		Figur lFigur = board[move.end.x][move.end.y];
-		movedStack.add(0, board[move.start.x][move.start.y].getMoved());
 		//Castle
 		if (lFigur != null && lFigur.getName().equals("rook") && board[move.start.x][move.start.y].getName().equals("king") && lFigur.isWhite() == board[move.start.x][move.start.y].isWhite()) {
 			if (!lFigur.getMoved() && !board[move.start.x][move.start.y].getMoved()) {
@@ -231,7 +247,6 @@ public class Board {
 			board[move.start.x][move.start.y] = null;
 			deleteFigur(lFigur);//TODO
 		}
-		return lFigur;
 	}
 	
 	private void deleteFigur(Figur lFigur) {
@@ -293,7 +308,7 @@ public class Board {
 		}
 	}
 */
-	public ArrayList<Figur> getRooks(boolean isWhite) {
+	public ArrayList<Figur> getNotMovedRooks(boolean isWhite) {
 		ArrayList<Figur> rooks = new ArrayList<>();
 		for(int i = 0; i < figuren.size(); i++) {
 			Figur f = figuren.get(i);
@@ -312,6 +327,22 @@ public class Board {
 		}
 		System.out.println("Error at Board.winner()");
 		return false;
+	}
+
+	private boolean inCheck(boolean isWhite){
+		getAllMoves(!isWhite, false);
+		Figur king = findKing(isWhite);
+		return king.getProtection() != 0;
+	}
+
+	private Figur findKing(boolean isWhite){
+		for (int i = 0; i < figuren.size(); i++) {
+			if(figuren.get(i).isWhite() == isWhite && figuren.get(i).getName().equals("king")){
+				return figuren.get(i);
+			}
+		}
+		System.out.println("ERROR findKing: No King found!");
+		return null;
 	}
 	
 	private void printBoard() {	//Just for testing

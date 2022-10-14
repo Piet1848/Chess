@@ -7,11 +7,13 @@ public interface Figur {
 	void moveTo(Point nPoint);
 	boolean isWhite();
 	double getValue();
+	double getAbsValue();
 	String getName();
 	void setMoved(boolean moved);
 	boolean getMoved();
 	double getBonus();
-	void resetProtection();
+	void resetProtection(boolean currentIsWhite);
 	void addProtection(int x);
 	double getProtection();
+	Figur clone();
 }

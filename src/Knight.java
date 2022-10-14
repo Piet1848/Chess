@@ -4,9 +4,9 @@ import java.util.ArrayList;
 public class Knight implements Figur{
 	private final String name = "knight";
 	private Point position;
-	private boolean isWhite;
+	private final boolean isWhite;
 	private final Point[] directions = {new Point(-2,1), new Point(-1,2), new Point(1,2), new Point(2,1), new Point(2,-1), new Point(1,-2), new Point(-1,-2), new Point(-2,-1)};
-	private double value = 2.9;
+	private final double value;
 	private boolean moved;
 	private double bonus;
 	private int protection;
@@ -15,8 +15,22 @@ public class Knight implements Figur{
 		position = nPos;
 		isWhite = nWhite;
 		if(!nWhite) {
-			value *= -1;
+			value = -2.9;
+		}else {
+			value = 2.9;
 		}
+	}
+
+	public Knight(Point nPos, boolean nWhite, boolean nMoved, int nProtection) {
+		position = nPos;
+		isWhite = nWhite;
+		if(!nWhite) {
+			value = -2.9;
+		}else {
+			value = 2.9;
+		}
+		moved = nMoved;
+		protection = nProtection;
 	}
 
 	@Override
@@ -30,16 +44,15 @@ public class Knight implements Figur{
 		for(int i = 0; i < directions.length; i++) {
 			Point positionToCheck = addPoints(position, directions[i]);
 			Figur f = b.getFigur(positionToCheck);
-			if(positionToCheck.getX() >= 8 || positionToCheck.getX() <= -1 || positionToCheck.getY() >= 8 || positionToCheck.getY() <= -1) {	//TODO could be more efficient
-				f = b.getFigur(position);	//ends the loop
-			}
-			if(f == null) {
-				moves.add(new Prio(positionToCheck, 0., false));
-			}else if(f.isWhite() != isWhite) {
-				f.addProtection(-1);
-				moves.add(new Prio(positionToCheck, f.getValue(), false));	//capture
-			}else {
-				f.addProtection(1);
+			if(!(positionToCheck.getX() >= 8 || positionToCheck.getX() <= -1 || positionToCheck.getY() >= 8 || positionToCheck.getY() <= -1)) {	//TODO could be more efficient
+				if(f == null) {
+					moves.add(new Prio(positionToCheck, 0., false));
+				}else if(f.isWhite() != isWhite) {
+					f.addProtection(-1);
+					moves.add(new Prio(positionToCheck, f.getAbsValue(), false));	//capture
+				}else {
+					f.addProtection(1);
+				}
 			}
 		}
 		return moves;
@@ -76,6 +89,11 @@ public class Knight implements Figur{
 	}
 
 	@Override
+	public double getAbsValue(){
+		return Math.abs(value);
+	}
+
+	@Override
 	public String getName() {
 		return name;
 	}
@@ -96,8 +114,9 @@ public class Knight implements Figur{
 	}
 
 	@Override
-	public void resetProtection() {
-		protection = 0;
+	public void resetProtection(boolean currentIsWhite) {
+		if(isWhite == currentIsWhite)
+			protection = 0;
 	}
 
 	@Override
@@ -107,9 +126,11 @@ public class Knight implements Figur{
 
 	@Override
 	public double getProtection() {
-		if(protection < 0) {
-			return value;
-		}
-		return 0;
+		return protection;
+	}
+
+	@Override
+	public Figur clone(){
+		return new Knight((Point) position.clone(), isWhite, moved, protection);
 	}
 }
